@@ -3,7 +3,7 @@ const app = express();
 const PORT = 3000;
 
 app.get('/', (req, res) => {
-  res.send('Hello from Docker + Jenkins CI/CD and awesome !');
+  res.send('Hello from Docker + Jenkins CI/CD with skill and efficiemy !');
 });
 
 app.listen(PORT, () => {
