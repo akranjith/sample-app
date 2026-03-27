@@ -1,0 +1,49 @@
+pipeline {
+    agent any
+
+    environment {
+        DOCKER_IMAGE = "sample-app:latest"
+    }
+
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/akranjith/sample-app.git'
+            }
+        }
+
+        stage('Build') {
+            steps {
+                script {
+                    docker.build(DOCKER_IMAGE, './app')
+                }
+            }
+        }
+
+        stage('Test') {
+            steps {
+                sh 'cd app && npm test'
+            }
+        }
+
+        stage('Push to Registry') {
+            steps {
+                script {
+                    docker.withRegistry('https://index.docker.io/v1/', 'dockerhub-credentials') {
+                        docker.image(DOCKER_IMAGE).push()
+                    }
+                }
+            }
+        }
+
+        stage('Deploy') {
+            steps {
+                sh '''
+                docker stop sample-app || true
+                docker rm sample-app || true
+                docker run -d -p 3000:3000 --name sample-app sample-app:latest
+                '''
+            }
+        }
+    }
+}
